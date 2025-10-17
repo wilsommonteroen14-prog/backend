@@ -16,14 +16,26 @@ router.get('/', async (req, res) => {
 // Agregar nuevo cliente
 router.post('/', async (req, res) => {
   try {
+    // Se obtienen los datos del cuerpo de la petición
     const { nombre, telefono, correo, direccion } = req.body;
+    
+    // Consulta SQL para insertar
     const sql = `
       INSERT INTO clientes (nombre, telefono, correo, direccion)
       VALUES (:nombre, :telefono, :correo, :direccion)
     `;
+    
     await sequelize.query(sql, {
-      replacements: { nombre, telefono, correo, direccion },
+      replacements: { 
+        nombre, 
+        telefono, 
+        correo, 
+        // --- MEJORA CLAVE ---
+        // Si la dirección no se envía (es undefined), se inserta NULL en la base de datos
+        direccion: direccion || null 
+      },
     });
+
     res.status(201).json({ mensaje: '✅ Cliente agregado correctamente' });
   } catch (error) {
     console.error("Error al agregar el cliente:", error);
